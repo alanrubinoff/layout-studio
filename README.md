@@ -1,172 +1,191 @@
 # Layout Studio
 
-Editor visual mínimo para posts de tamaño fijo (1080×1350). **El `post.html` de cada post es la única fuente de verdad**: el editor escribe en ese mismo archivo, y Claude Code o Codex lo editan directamente.
+Editor visual mínimo para armar **posts de Instagram de tamaño fijo (1080×1350)** en HTML: ubicás textos e imágenes con el mouse, los comparás con una imagen de referencia y exportás **PNG** o **PSD con capas** para seguir en Photoshop.
+
+Cada post es un único archivo `post.html`. El editor guarda ahí cada cambio, y un agente de código (Claude Code o Codex) puede editar ese mismo archivo cuando le pedís algo en lenguaje natural.
 
 ## Cómo probarlo
 
 1. Instalá **Node.js** (versión 22 o más nueva) desde [nodejs.org](https://nodejs.org).
 2. Descargá este proyecto: botón verde **Code → Download ZIP** en GitHub, y descomprimilo.
-3. Doble clic en **`iniciar.bat`** (Windows) o **`iniciar.command`** (Mac; la primera vez: clic derecho → Abrir). La primera vez instala lo necesario (unos minutos); después se abre el editor en el navegador con el post de ejemplo.
-4. Probá: arrastrá el título, achicalo con las esquinas, compará con la referencia (**Al lado** / **Encima**), y exportá **PNG** o **PSD**. Los cambios se guardan solos en `clientes/demo/posts/ejemplo/post.html`.
+3. Doble clic en **`iniciar.bat`** (Windows) o **`iniciar.command`** (Mac; la primera vez: clic derecho → Abrir). La primera vez instala lo necesario (unos minutos); después se abre el editor en el navegador con el post de ejemplo **Pan de masa madre**.
+4. Probá: arrastrá el título, achicalo desde las esquinas, compará con la referencia (**Al lado** / **Encima**) y exportá **PNG** o **PSD**. Los cambios se guardan solos en `clientes/demo/posts/ejemplo/post.html`.
 
-**Con Claude Code:** abrí la carpeta del proyecto y pedile cosas como *"quiero un post para mi cliente panaderia-sol, dejé las imágenes en Descargas"* o *"subí el título 20 px"*. El archivo [CLAUDE.md](CLAUDE.md) le explica el flujo.
+Para cerrarlo, cerrá la ventana negra (o `Ctrl+C` en ella).
 
-## Ejecutar desde la terminal (Windows y macOS)
+## Trabajar con Claude Code
 
-```sh
-npm install
-npx playwright install chromium                      # navegador para exportar y para los tests (si falta, usa Chrome o Edge)
-npm start                                            # → http://localhost:4321
-npm run nuevo-cliente -- <cliente>                   # crea clientes/<cliente>/ desde el demo
-npm run nuevo -- <cliente>/<post>                    # crea un post desde la plantilla del cliente
-npm run export -- demo/ejemplo                       # → clientes/demo/posts/ejemplo/export/ejemplo.png
-npm run psd -- demo/ejemplo                          # → export/ejemplo.psd: capas en grupos, textos editables
-npm test                                             # unitarios + e2e (usan el cliente demo)
-```
+Abrí la carpeta del proyecto con Claude Code y pedile lo que necesites. El archivo [CLAUDE.md](CLAUDE.md) le explica el flujo, así que no hace falta darle más contexto. Por ejemplo:
 
-Requiere Node 22 o superior. El servidor escucha sólo en `127.0.0.1`. Todos los comandos reciben el proyecto como **`<cliente>/<post>`**; en el editor se elige con el selector o con `?project=<cliente>/<post>`.
+- *"Quiero un post para mi cliente panaderia-sol. Dejé en Descargas la referencia, el fondo sin textos y el logo."*
+- *"En panaderia-sol/promo-otono subí el título 20 px y poné el subtítulo en blanco."*
+- *"Cambiá el texto del título por 'NUEVA TEMPORADA', que se siga viendo igual."*
+- *"Exportame el PSD de panaderia-sol/promo-otono."*
 
-## Convenciones de nombres
+**Qué conviene tener para un post nuevo** (en Descargas, con cualquier nombre):
 
-```text
-clientes/
-  <cliente>/                      demo, panaderia-sol…
-    proceso-repetible.md          documentación propia del cliente
-    plantilla/post.html           base de cada post nuevo: estilo de marca + elementos fijos (npm run nuevo)
-    marca/                        lo que comparten todos sus posts
-      fonts/<familia>-<variante>.ttf    archivo-black.ttf
-      logo.png
-      <asset>.png                 sombrero-chef.png
-    posts/
-      <post>/                     ejemplo, pan-masa-madre…
-        post.html                 el diseño (nombre fijo)
-        fondo.png                 imagen base limpia, sin textos (nombre fijo)
-        referencia.png            diseño objetivo (nombre fijo; sólo para comparar)
-        cajas.png                 referencia con cajas de colores (nombre fijo; opcional)
-        <asset>[-<variante>].png  assets propios del post: reloj-35.png
-        export/<post>.png, .psd   exportaciones con el nombre del post (se regeneran; no se versionan)
-```
+| Imagen | Qué es | ¿Obligatoria? |
+|---|---|---|
+| Referencia | El diseño terminado que querés reproducir (por ejemplo, generado con ChatGPT) | Sí |
+| Fondo | La misma escena **sin** textos ni íconos | Sí |
+| Cajas | La referencia con un rectángulo de color alrededor de cada elemento: ayuda a ubicar todo en la primera pasada | Recomendada |
+| Assets | Logo, íconos o sellos en PNG con transparencia | Si el diseño los usa |
+| Fuentes | Los `.ttf` / `.otf` de la marca | Si no, se usan fuentes libres |
 
-- **Carpetas y archivos:** minúsculas, palabras separadas por guiones, sin acentos ni espacios (`pan-masa-madre`, `sombrero-chef.png`). Los comandos rechazan proyectos que no cumplan la convención.
-- **¿Marca o post?** Si otro post lo va a reutilizar tal cual (fuentes, logo, íconos), va en `marca/`. Si tiene contenido propio del post dibujado, va en el post — o mejor, se separa: `marca/reloj.png` es el reloj sin número y los minutos van como texto editable encima (`#reloj-minutos`, clase `.minutos`).
-- **Grupos:** piezas que se mueven juntas van dentro de un único elemento editable, con sus partes en `%` para que escalen juntas: `#sello` contiene `#sello-anillo` (SVG) y `#sello-sombrero`.
-- **Desde `post.html`**, los assets de la marca se referencian con rutas relativas: `../../marca/logo.png`. Así el archivo abre solo, sin servidor.
-- **Ids de elementos:** en español y por función: `titulo`, `subtitulo`, `usuario`, `logo`, `menu`, `reloj`. Las piezas de un mismo grupo comparten prefijo: `sello-anillo`, `sello-sombrero`.
-- **Clases CSS:** el mismo nombre que la función (`.titulo`, `.subtitulo`, `.acento`, `.sello`, `.fondo`).
-- `data-role` usa el vocabulario del spec: `headline`, `label`, `logo`, `decoration`.
+Los prompts para generar el fondo y las cajas en ChatGPT están en [`prompts/`](prompts/).
 
 ## Uso del editor
 
 | Acción | Cómo |
 |---|---|
+| Elegir post | selector arriba a la izquierda, agrupado por cliente (aparece cuando hay más de un post) |
 | Mover | arrastrar el elemento · flechas 1 px · `Shift` + flechas 10 px |
-| Escalar (proporcional) | manijas de las esquinas; en textos cambia `font-size`, en imágenes `width` |
+| Escalar (proporcional) | manijas de las esquinas; en textos cambia el tamaño de letra, en imágenes el ancho |
 | Rotar | manija redonda de arriba · `Shift` de a 15° |
 | Tamaño | `+` / `−` (textos ±1 px, `Shift` ±4) · campo **T** / **W** de la barra |
 | Valores exactos | campos X, Y, T/W y ↻ de la barra superior (Enter para aplicar) |
 | Deshacer / rehacer | `Ctrl/⌘+Z` · `Ctrl/⌘+Shift+Z` (cada arrastre o ráfaga de teclas es una sola acción) |
-| Referencia | **Al lado** (`R`) y/o **Encima** con opacidad (`O`) — usa `referencia.png` del post |
-| Zoom | pastilla abajo a la izquierda · `0` ajustar · `1` tamaño real. Es sólo visual: no cambia coordenadas |
-| Exportar | **Exportar PNG** → `export/<post>.png`, a resolución real · **PSD** → `export/<post>.psd` |
+| Referencia | **Al lado** (`R`) y/o **Encima** con opacidad (`O`) |
+| Zoom | pastilla abajo a la izquierda · `0` ajustar · `1` tamaño real (sólo visual: no cambia el diseño) |
+| Exportar | **Exportar PNG** y **PSD** → carpeta `export/` del post. Tras el PSD, **Abrir en Photopea** |
 
-## Exportar a PSD
+## El PSD
 
-`npm run psd -- <cliente>/<post>` (o el botón **PSD** del editor) genera `export/<post>.psd`, organizado así (panel de capas, de arriba hacia abajo):
+El PSD sale organizado para seguir trabajando en Photoshop:
 
 ```text
 ▸ Cabecera                         (etiqueta gris)
     Menú · Usuario — tumarca · Logo
 ▸ Gráficos                         (verde)
-    ▸ Reloj
-        Minutos — 35’ · Reloj
-    Sello RECETA
+    Sello NUEVO
 ▸ Textos                           (amarillo)
-    Título — PAPAS CROCANTES AL PIMENTÓN · Subtítulo — Fáciles, doradas…
-▸ Respaldos en píxeles (no editar) (oculto, cerrado)
+    Título — PAN DE MASA MADRE · Subtítulo — Recién salido del horno…
+▸ Respaldos en píxeles (no editar) (oculto)
   Fondo                            (bloqueado)
 ```
 
-- **Grupos:** salen de `data-grupo` en cada elemento del HTML (`cabecera`, `textos`, `graficos`, o cualquier otro nombre, que se vuelve subcarpeta: `data-grupo="reloj"`). Sin `data-grupo`, los textos van a *Textos* y el resto a *Gráficos*. Los grupos respetan el orden de apilado del diseño.
-- **Nombres:** `data-nombre` si el elemento lo tiene (p. ej. `data-nombre="Sello RECETA"`), si no el `id` legible (`reloj-minutos` → *Minutos*). Los textos agregan su contenido, como hace Photoshop.
-- **Imágenes, SVG y grupos del HTML** (logo, reloj, sello, subrayado, menú) → capas de píxeles exactas, en su posición.
-- **Textos** → capas de **texto editables** en la fuente real (nombre PostScript leído del `.otf`), con tamaño, color, interlineado por renglón, escala horizontal por tramo (`scale` → *escala horizontal* de Photoshop), inclinación y la sombra como efecto de capa. Cada una tiene su copia **en píxeles** en el grupo de respaldos.
-- La imagen compuesta del PSD es el mismo render que el PNG exportado.
+- Los **textos son editables**, con la fuente real, el tamaño, el color, el interlineado, la escala horizontal y la sombra como efecto de capa.
+- Imágenes y decoraciones son capas de píxeles en su posición exacta.
+- Al abrirlo, Photoshop avisa que las capas de texto deben **actualizarse**. Pasa con todo PSD generado fuera de Photoshop: aceptá. Al redibujarlas pueden moverse 1 o 2 px (hasta 5–6 px abajo en títulos con tamaños mezclados). Si molesta, en *Respaldos* está cada texto exactamente como en el HTML.
+- Las fuentes de la marca tienen que estar instaladas en la máquina donde se abre el PSD.
+- **Ver sin Photoshop:** el botón **Abrir en Photopea** lo abre en photopea.com, que corre en tu navegador (no se sube nada). Si Chrome pide permiso para que photopea.com acceda a la red local, aceptá.
 
-Al abrirlo, Photoshop avisa que las capas de texto deben actualizarse (pasa con todo PSD generado fuera de Photoshop). Al aceptar, las redibuja él con la fuente instalada y pueden moverse unos píxeles respecto del HTML; si eso molesta, se usa el respaldo en píxeles. Las fuentes tienen que estar instaladas en la máquina del diseñador (las comerciales, p. ej. de Adobe Fonts, se instalan aparte). Generar el PSD no usa servicios externos.
+## Problemas comunes
 
-**Ver en Photopea:** después de exportar, el editor ofrece **Abrir en Photopea** y `npm run psd` imprime el enlace. Photopea corre en el navegador y lee el PSD y las fuentes del post directamente del servidor local (`npm start` tiene que estar corriendo): nada se sube a un servidor. El servidor autoriza sólo a `https://www.photopea.com`, sólo a leer archivos de `clientes/`. Chrome puede pedir permiso para que photopea.com acceda a la red local: hay que aceptarlo.
+| Problema | Solución |
+|---|---|
+| "Falta Node.js" o `npm` no existe | Instalá Node.js 22+ desde nodejs.org y volvé a abrir el iniciador |
+| Mac: "no se puede abrir porque es de un desarrollador no identificado" | Clic derecho sobre `iniciar.command` → Abrir → Abrir |
+| Mac: "permiso denegado" | En la Terminal, dentro de la carpeta: `chmod +x iniciar.command` |
+| El navegador dice que no conecta | Esperá a que la ventana negra muestre `Layout Studio → http://localhost:4321` y recargá |
+| `EADDRINUSE` (puerto ocupado) | Ya hay un editor abierto en otra ventana: usá ese, o cerralo |
+| Exportar falla con "No hay navegador" | En la carpeta del proyecto: `npx playwright install chromium` |
+| Photopea muestra el lienzo vacío | Revisá que el editor siga abierto y aceptá el permiso de red local de Chrome |
 
-**Medido en Photopea** (redibujando cada texto con su motor y las fuentes reales, como el "Actualizar" de Photoshop): textos de un estilo ≤2 px de diferencia con el HTML; títulos de varios renglones con tamaños mezclados, ≤1 px arriba y a los lados y 5–6 px abajo. Las imágenes no se mueven.
+---
 
-## Flujo para un post nuevo (agentes)
+## Para agentes y desarrolladores
 
-1. **Crear el post desde la plantilla del cliente:**
-   ```sh
-   npm run nuevo -- <cliente>/<post>
-   ```
-   Copia `clientes/<cliente>/plantilla/post.html` a `posts/<post>/post.html`. La plantilla trae lo fijo ya calibrado: el `<style>` de marca y la cabecera (logo, usuario, menú). Agregar en la carpeta `fondo.png` (idealmente generado *borrando* los textos de la referencia: [prompts/fondo-limpio-chatgpt.md](prompts/fondo-limpio-chatgpt.md)), `referencia.png` y `cajas.png` (generada en ChatGPT con [prompts/cajas-chatgpt.md](prompts/cajas-chatgpt.md)).
-2. Reemplazar los textos de ejemplo y agregar las piezas propias del post (decoraciones en SVG, imágenes), una por elemento.
-3. **Primera pasada con cajas:**
-   ```sh
-   npm run boxes -- <cliente>/<post>                                # lista las cajas numeradas + hoja de recortes
-   npm run boxes -- <cliente>/<post> --apply subtitulo=4 titulo=5 subrayado=6
-   ```
-   Detecta **todas** las cajas, aunque repitan color (se nombran `verde`, `verde-2`… y se numeran en orden de lectura). Para saber qué hay en cada una, deja una hoja con el recorte de la referencia dentro de cada caja. La caja se elige por número o por nombre. Ajusta la **tinta visible** del elemento (sin sombras ni márgenes transparentes): en textos cambia `font-size`, en imágenes y SVG `width`. `--inset N` descuenta el aire alrededor (por defecto 5, medido con las cajas ajustadas del prompt; ~14 si vienen holgadas). La cabecera de la plantilla no hace falta pasarla por cajas: ya viene exacta. Lo que forma parte de la foto (p. ej. el paquete) no se maqueta aunque tenga caja.
-4. **Ajustar cada texto a la referencia:**
-   ```sh
-   npm run fit -- <cliente>/<post> titulo            # analiza y propone, no escribe
-   npm run fit -- <cliente>/<post> titulo --apply    # escribe la mejor variante
-   ```
-   Mide cada línea (alto, ancho, posición) en la referencia y en el render. Compara **ancho** (sólo `font-size`) contra **alto + escala horizontal** (`font-size` + `scale: X 1`), ajusta posición e interlineado, y elige por superposición de píxeles (IoU). Siempre deja una hoja de recortes (referencia / actual / propuesta) en la carpeta temporal del sistema para mirarla antes de aceptar. Sólo cuenta las zonas de la referencia cercanas al texto ya ubicado, para no confundir partes de la foto del mismo color (un suéter blanco) con letras.
+### Comandos
 
-   Si una línea tiene otra proporción en la referencia (más grande o menos comprimida), se resuelve en el CSS del post y se vuelve a correr `fit`: tamaño con `.acento { font-size: 1.14em }` y escala por línea con `<span class="linea l2">` + `.titulo .l2 { scale: 1.16 1 }`.
-5. Afinar con el mouse (referencia **Encima**) y exportar.
-
-Las referencias suelen ser generadas por IA: la tipografía nunca coincide exacta. El objetivo es la intención (proporciones, peso y bloque), no el píxel.
-
-## Reglas para agentes
-
-- Para mover o ajustar algo, editá **sólo** el `post.html` del post. No hace falta leer otros archivos.
-- Cada elemento editable lleva un `id` único (ver convenciones), `data-editable="true"` y su geometría inline (`left`, `top`, `width`, `font-size`, `transform: rotate(…)`), con `position: absolute` dentro de `.canvas`.
-- Los estilos compartidos (fuentes, colores) van en el `<style>` del mismo HTML.
-- **Escala horizontal** de un texto (como en Photoshop): inline `scale:0.8 1;transform-origin:0 0;`. Así se acerca la fuente Wide a referencias de proporción más angosta sin cambiar de fuente. El editor la respeta (la selección mide lo visible) y no permite rotar ese elemento.
-- Para verificar visualmente, usá `npm run export -- <cliente>/<post>` y mirá `export/<post>.png`.
-- Al crear elementos, poné `data-grupo` (p. ej. `cabecera`, o un nombre propio para piezas que van juntas) y, si el id no alcanza, `data-nombre`: así queda ordenado el PSD.
-- Si el editor está abierto, recarga solo cuando el archivo cambia (y vacía su historial de deshacer). Si había un cambio sin guardar, muestra un conflicto en lugar de pisarlo.
-
-## Estructura del código
-
-```text
-studio/server.js        servidor local: sirve archivos, POST /api/save y POST /api/export
-studio/projects.js      convención de proyectos (<cliente>/<post>) y nombres fijos de imágenes
-studio/new-post.js      crea un post desde la plantilla del cliente (npm run nuevo)
-studio/psd.js           exportación a PSD con capas (npm run psd)
-studio/style-patch.js   reescribe sólo el atributo style del elemento (parse5 + offsets exactos)
-studio/export.js        render de post.html solo (file://) a PNG con Playwright
-studio/boxes.js         detección de cajas de colores y primera pasada (npm run boxes)
-studio/fit.js           ajuste de textos a la referencia (npm run fit)
-studio/editor.html/.js  editor: post en un iframe escalado más un overlay de selección
-tests/                  pruebas
-Layout_Studio_MVP_Minimo.md   spec original de la herramienta
+```sh
+npm install && npx playwright install chromium     # primera vez
+npm start                                          # editor en http://localhost:4321 (?project=<cliente>/<post>)
+npm run nuevo-cliente -- <cliente>                 # crea clientes/<cliente>/ copiando el demo
+npm run nuevo -- <cliente>/<post>                  # crea un post desde la plantilla del cliente
+npm run boxes -- <cliente>/<post> [--apply id=N …] # detecta cajas de colores y ubica elementos
+npm run fit -- <cliente>/<post> <id> [--apply]     # ajusta un texto a la referencia
+npm run export -- <cliente>/<post>                 # → export/<post>.png
+npm run psd -- <cliente>/<post>                    # → export/<post>.psd (+ enlace a Photopea)
+npm test                                           # pruebas (usan el cliente demo)
 ```
 
-## Guardado
+El servidor escucha sólo en `127.0.0.1`. Un proyecto siempre se nombra **`<cliente>/<post>`**.
 
-Al terminar cada interacción (soltar el mouse, dejar de tocar flechas durante 0,5 s, Enter en un campo, deshacer), el editor envía **una** operación `{project, elementId, changes, expectedRevision}`. El servidor:
+### Estructura y nombres
 
-1. valida las propiedades permitidas: `left`, `top`, `width`, `height`, `font-size` en px, `transform: rotate(Ndeg)`, `line-height`, `scale` y `transform-origin: 0 0`. `null` quita la declaración (lo usa deshacer);
-2. compara la revisión (hash del archivo) y devuelve 409 si difiere;
-3. reemplaza sólo el texto del atributo `style` de ese elemento;
-4. escribe de forma atómica (archivo temporal y luego `rename`).
+```text
+clientes/
+  <cliente>/                      demo, panaderia-sol…
+    plantilla/post.html           base de cada post nuevo: estilo de marca + cabecera calibrada
+    marca/                        lo que comparten todos los posts del cliente
+      fonts/                      .ttf/.otf de la marca
+      logo.png, <asset>.png       íconos y piezas reutilizables
+    posts/
+      <post>/                     ejemplo, promo-otono…
+        post.html                 el diseño (nombre fijo)
+        fondo.png                 base limpia, sin textos (nombre fijo)
+        referencia.png            diseño objetivo, sólo para comparar (nombre fijo)
+        cajas.png                 referencia con cajas de colores (nombre fijo, opcional)
+        <asset>.png               assets propios del post (reloj-35.png)
+        export/<post>.png, .psd   exportaciones (se regeneran; no se versionan)
+```
 
-Nunca se serializa el DOM renderizado. La rotación sólo se edita si el `transform` del elemento está vacío o es un `rotate()` simple.
+- **Archivos y carpetas:** minúsculas, palabras separadas por guiones, sin acentos ni espacios. Los comandos rechazan nombres que no cumplan.
+- **¿Marca o post?** Lo que otro post reutilizaría tal cual (fuentes, logo, íconos) va en `marca/`. Lo propio del post va en el post. Si una pieza mezcla las dos cosas (un reloj con "35'" dibujado), conviene separarla: el reloj vacío en `marca/` y los minutos como texto editable.
+- **En `post.html`:** rutas relativas a la marca (`../../marca/logo.png`), para que el archivo abra solo, sin servidor.
+- **Elementos:** un elemento por pieza. Cada uno lleva:
+  - `id` en español por función (`titulo`, `subtitulo`, `usuario`, `logo`, `menu`, `sello`), con prefijo compartido entre partes de un grupo (`sello-anillo`);
+  - `data-editable="true"`;
+  - la geometría inline (`left`, `top`, `width`, `font-size`, `transform: rotate(…)`), con `position: absolute` dentro de `.canvas`;
+  - `data-grupo` (`cabecera`, o un nombre propio para piezas que van juntas: sale como subcarpeta en el PSD) y, si el id no alcanza, `data-nombre`.
+- **Piezas que se mueven juntas:** van dentro de un solo elemento editable, con sus partes en `%` para que escalen juntas (ver `#sello` en el demo).
+- **Estilos compartidos** (fuentes, colores) en el `<style>` del mismo HTML. Clases con el nombre de la función (`.titulo`, `.subtitulo`, `.acento`).
+- **Escala horizontal** de un texto (como en Photoshop): inline `scale:0.8 1;transform-origin:0 0;`. Sirve para acercarse a referencias con letra más angosta sin cambiar de fuente.
 
-## Evaluación con agentes
+### Flujo para un post nuevo
 
-[docs/evaluacion-fase2.md](docs/evaluacion-fase2.md): tres ajustes pedidos en lenguaje natural a agentes de código (Claude Code; vale igual para Codex) sin contexto previo. Los tres correctos, con 13–17 acciones y ~40 k tokens cada uno, leyendo sólo el `post.html` (más el README para encontrar los comandos).
+1. `npm run nuevo -- <cliente>/<post>` y copiar `fondo.png`, `referencia.png` y `cajas.png` a la carpeta del post.
+2. Reemplazar los textos de ejemplo y agregar las piezas propias (SVG para formas simples, PNG para ilustraciones).
+3. **Primera pasada:** `npm run boxes -- <cliente>/<post>`.
+   - Detecta todas las cajas, aunque repitan color (`verde`, `verde-2`…), numeradas en orden de lectura.
+   - Deja una hoja con el recorte de la referencia dentro de cada caja, para saber qué hay en cada una.
+   - Después se asocian: `--apply titulo=5 subtitulo=4`.
+   - Ajusta la parte visible de cada elemento (sin sombras ni márgenes transparentes). `--inset N` descuenta el aire de las cajas: por defecto 5, ~14 si vienen holgadas.
+   - La cabecera de la plantilla ya viene calibrada. Lo que es parte de la foto no se maqueta.
+4. **Textos:** `npm run fit -- <cliente>/<post> <id>`.
+   - Mide alto, ancho y posición de cada línea en la referencia.
+   - Compara ajustar sólo el ancho contra ajustar el alto con escala horizontal, y elige por superposición de píxeles (IoU).
+   - Deja una hoja de recortes para mirar antes de aplicar con `--apply`.
+   - Si una línea tiene otra proporción, se resuelve en el CSS del post (`.acento { font-size: 1.14em }`, `.titulo .l2 { scale: 1.16 1 }` con `<span class="linea l2">`) y se vuelve a correr.
+5. Afinar con el mouse (referencia **Encima**), exportar y comparar `export/<post>.png` con la referencia.
 
-## Pendiente / conocido
+Las referencias suelen ser generadas por IA, así que la tipografía nunca coincide exacta: el objetivo es la intención (proporción, peso, bloque), no el píxel.
 
+### Código
 
-- **Fuentes y material de clientes:** el repo público sólo trae el cliente `demo`, con fuentes libres (Archivo, licencia SIL OFL) e imágenes generadas para el ejemplo. Las fuentes comerciales (p. ej. de Adobe Fonts) y el material de cada marca no se publican: cada uno los pone en su `clientes/<cliente>/marca/`.
-- Probado en Windows 11 (Chromium). macOS **no se probó**; el código no usa rutas absolutas ni comandos de Bash, y git fija saltos de línea LF en todas las plataformas.
+```text
+studio/server.js        servidor local: archivos, POST /api/save, POST /api/export
+studio/editor.html/.js  editor: post en un iframe escalado + overlay de selección
+studio/style-patch.js   reescribe sólo el atributo style de un elemento (parse5 + offsets exactos)
+studio/projects.js      convención <cliente>/<post>, nombres fijos, rutas de exportación
+studio/export.js        render a PNG con Playwright
+studio/psd.js           exportación a PSD organizada (ag-psd)
+studio/boxes.js         detección de cajas de colores
+studio/fit.js           ajuste de textos a la referencia
+studio/new-client.js    npm run nuevo-cliente
+studio/new-post.js      npm run nuevo
+tests/                  pruebas (node --test)
+docs/                   spec original y evaluación con agentes
+prompts/                prompts de ChatGPT (cajas, fondo limpio)
+```
+
+### Cómo guarda el editor
+
+Al terminar cada interacción (soltar el mouse, dejar de tocar flechas 0,5 s, Enter en un campo, deshacer), el editor envía **una** operación `{project, elementId, changes, expectedRevision}`. El servidor:
+
+1. valida las propiedades permitidas (`left`, `top`, `width`, `height`, `font-size`, `line-height`, `transform: rotate()`, `scale`, `transform-origin: 0 0`);
+2. compara la revisión del archivo y responde 409 si cambió por fuera (por ejemplo, porque lo editó un agente): el editor avisa en lugar de pisar el cambio;
+3. reemplaza sólo el atributo `style` de ese elemento y escribe de forma atómica.
+
+Nunca se serializa el DOM renderizado: el HTML queda tal como lo escribió la persona o el agente. Si el editor está abierto y el archivo cambia, se recarga solo.
+
+### Licencias y material
+
+- El cliente `demo` usa fuentes libres (Archivo, licencia SIL OFL, incluida en `clientes/demo/marca/fonts/`) e imágenes generadas para el ejemplo.
+- No subas a un repo público fuentes comerciales (p. ej. de Adobe Fonts) ni material de clientes sin permiso: viven en `clientes/<cliente>/` de cada máquina.
+- Probado en Windows 11 con Chromium. macOS **no se probó todavía**: el código no usa rutas absolutas ni comandos propios de Windows.
+
+### Evaluación
+
+[docs/evaluacion-fase2.md](docs/evaluacion-fase2.md): tres ajustes pedidos en lenguaje natural a agentes sin contexto previo. Los tres salieron correctos, con 13–17 acciones y ~40 k tokens cada uno, leyendo sólo el `post.html` y el README.

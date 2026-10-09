@@ -2,6 +2,8 @@
 
 Se usa en chatgpt.com adjuntando `referencia.png` del post. El resultado se guarda como `cajas.png` en la carpeta del post y se procesa con `npm run boxes -- <cliente>/<post>`.
 
+No hay límite de elementos: si ChatGPT repite un color en cajas separadas, `boxes` las detecta igual (`verde`, `verde-2`…). Lo importante es que cada elemento tenga **su propia** caja.
+
 ---
 
 Quiero que generes una **versión anotada de esta misma imagen**, agregando bounding boxes (rectángulos de colores) alrededor de todos los elementos gráficos superpuestos sobre la fotografía.

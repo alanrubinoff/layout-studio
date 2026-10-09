@@ -2,7 +2,7 @@
 
 Se usa en chatgpt.com adjuntando `referencia.png` del post. El resultado se guarda como `fondo.png`.
 
-**Por qué así:** si el fondo se *regenera*, la foto entera cambia un poco (en `papas-crocantes` y `probando-el-tuco` el fondo difiere de la referencia en todo el cuadro, incluso lejos de los textos). Si en cambio se *borran* sólo los elementos superpuestos sobre la misma imagen, todo lo demás queda igual a la referencia y:
+**Por qué así:** si el fondo se *regenera*, la foto entera cambia un poco (lo medimos en posts reales: el fondo regenerado difería de la referencia en todo el cuadro, incluso lejos de los textos). Si en cambio se *borran* sólo los elementos superpuestos sobre la misma imagen, todo lo demás queda igual a la referencia y:
 
 - el diseño final coincide con la foto que se aprobó (el paquete, la persona y los objetos no se corren);
 - comparar `referencia.png` con `fondo.png` marca exactamente dónde estaba cada texto, logo o ícono, sin necesitar la imagen de cajas.

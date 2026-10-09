@@ -1,3 +1,5 @@
+> **Nota:** este es el documento con el que empezó el proyecto (fases 0–2). Se conserva como referencia histórica: la estructura actual (`clientes/<cliente>/posts/<post>/`) y las funciones agregadas después están en el [README](../README.md).
+
 # Mini Layout Editor — MVP HTML-first
 
 **Especificación inicial para Codex / Claude Code · v0.2**
