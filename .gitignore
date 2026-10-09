@@ -1,0 +1,4 @@
+node_modules/
+# exportaciones (se regeneran con npm run export / npm run psd)
+export/
+*.tmp

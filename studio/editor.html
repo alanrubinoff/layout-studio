@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Layout Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #141416; --panel: #1c1c1f; --line: #2a2a2e; --text: #e7e7ea; --muted: #8b8b93; --field: #26262a;
+      --accent: #4c8dff; --ok: #3ecf8e; --warn: #f5a524; --err: #f2555a;
+      font: 13px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text); background: var(--bg);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    button, select, input { font: inherit; color: inherit; }
+
+    header {
+      height: 44px; display: flex; align-items: center; gap: 14px; padding: 0 12px;
+      background: var(--panel); border-bottom: 1px solid var(--line); user-select: none; white-space: nowrap;
+    }
+    header > * { flex-shrink: 0; }
+    header > #props { flex-shrink: 1; min-width: 0; overflow: hidden; }
+    #zoombar {
+      position: fixed; left: 12px; bottom: 12px; padding: 3px; background: var(--panel);
+      border: 1px solid var(--line); border-radius: 9px; box-shadow: 0 6px 20px rgba(0, 0, 0, .35); user-select: none;
+    }
+    .brand { font-weight: 600; letter-spacing: .01em; }
+    .brand span { color: var(--muted); font-weight: 400; margin-left: 6px; }
+    .spacer { flex: 1; }
+    .sep { width: 1px; height: 20px; background: var(--line); }
+    .group { display: flex; align-items: center; gap: 2px; }
+    .btn {
+      height: 28px; min-width: 28px; padding: 0 8px; border: 0; border-radius: 6px;
+      background: transparent; cursor: pointer; color: var(--muted);
+    }
+    .btn:hover { background: #2a2a2f; color: var(--text); }
+    .btn.on { color: var(--text); background: #2e2e34; }
+    .btn.solid { background: #2a2a2f; color: var(--text); }
+    .btn.solid:hover { background: #34343a; }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.primary:hover { background: #5d98ff; }
+    .btn:disabled { opacity: .35; cursor: default; background: transparent; }
+    #zoom-label { width: 46px; text-align: center; font-variant-numeric: tabular-nums; color: var(--text); }
+    select { height: 28px; background: #2a2a2f; border: 0; border-radius: 6px; padding: 0 6px; }
+    a.link { color: var(--muted); text-decoration: none; }
+    a.link:hover { color: var(--text); }
+    .label { color: var(--muted); font-size: 12px; margin-right: 4px; }
+    input[type=range] { width: 80px; accent-color: var(--accent); }
+
+    /* Propiedades del elemento seleccionado */
+    #props { display: flex; align-items: center; gap: 8px; visibility: hidden; }
+    #props.on { visibility: visible; }
+    #props .id { color: var(--text); font-weight: 500; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+    #props label { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: 12px; }
+    #props input {
+      width: 54px; height: 26px; padding: 0 6px; border: 1px solid transparent; border-radius: 5px;
+      background: var(--field); font-variant-numeric: tabular-nums; outline: none;
+    }
+    #props input:focus { border-color: var(--accent); }
+    #props input:disabled { opacity: .4; }
+
+    #status { display: flex; align-items: center; gap: 8px; color: var(--muted); min-width: 120px; justify-content: flex-end; }
+    #status i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: none; }
+    #status[data-state="saved"] i { background: var(--ok); }
+    #status[data-state="saving"] i { background: var(--accent); animation: pulse 1s infinite; }
+    #status[data-state="error"] { color: var(--err); } #status[data-state="error"] i { background: var(--err); }
+    #status[data-state="conflict"] { color: var(--warn); } #status[data-state="conflict"] i { background: var(--warn); }
+    #status button:empty { display: none; }
+    @keyframes pulse { 50% { opacity: .3; } }
+
+    #viewport { position: absolute; inset: 44px 0 0 0; overflow: auto; display: grid; }
+    #stage { margin: auto; padding: 32px 24px 24px; display: flex; gap: 24px; align-items: flex-start; }
+    .panel { position: relative; margin: 0; }
+    .panel > figcaption {
+      position: absolute; bottom: 100%; left: 0; margin-bottom: 8px; white-space: nowrap;
+      color: var(--muted); font-size: 12px; user-select: none;
+    }
+    .sheet { position: relative; box-shadow: 0 0 0 1px #000, 0 12px 40px rgba(0, 0, 0, .5); background: #fff; }
+    #ref-panel { display: none; }
+    body.ref-side #ref-panel { display: block; }
+    #ref-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    #ref-over { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; display: none; }
+    body.ref-over #ref-over { display: block; }
+    #ref-opacity-wrap { display: none; }
+    body.ref-over #ref-opacity-wrap { display: flex; }
+
+    #board { position: relative; overflow: visible; }
+    #frame { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; pointer-events: none; background: #fff; }
+    #hit { position: absolute; inset: 0; cursor: default; touch-action: none; }
+    #hit.over { cursor: move; }
+
+    /* Overlay de selección: rota junto con el elemento */
+    .box { position: absolute; pointer-events: none; display: none; transform-origin: 50% 50%; }
+    #hover-box { outline: 1px solid rgba(76, 141, 255, .6); }
+    #sel-box { outline: 1.5px solid var(--accent); }
+    #ref-box { outline: 1.5px dashed var(--accent); }
+    .handle {
+      position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; background: #fff;
+      border: 1.5px solid var(--accent); border-radius: 2px; pointer-events: auto; touch-action: none;
+    }
+    .handle[data-h="nw"] { left: 0; top: 0; cursor: nwse-resize; }
+    .handle[data-h="ne"] { left: 100%; top: 0; cursor: nesw-resize; }
+    .handle[data-h="sw"] { left: 0; top: 100%; cursor: nesw-resize; }
+    .handle[data-h="se"] { left: 100%; top: 100%; cursor: nwse-resize; }
+    .handle[data-h="rot"] { left: 50%; top: -26px; border-radius: 50%; cursor: grab; }
+    .rot-stem { position: absolute; left: 50%; top: -21px; width: 1.5px; height: 21px; margin-left: -.75px; background: var(--accent); }
+    #sel-box.no-rotate .handle[data-h="rot"], #sel-box.no-rotate .rot-stem { display: none; }
+    #sel-label {
+      position: absolute; display: none; pointer-events: none; white-space: nowrap;
+      background: var(--accent); color: #fff; font: 500 11px/1 system-ui, sans-serif; padding: 4px 6px; border-radius: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    #empty { margin: auto; color: var(--muted); display: none; }
+    #help { position: fixed; right: 12px; bottom: 10px; color: #5c5c64; font-size: 11px; user-select: none; }
+    #help kbd { font: inherit; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Layout Studio<span id="project-name"></span></div>
+    <select id="project" hidden title="Proyecto"></select>
+    <div class="sep"></div>
+    <div id="props">
+      <span class="id" id="prop-id"></span>
+      <label title="Posición horizontal (left)">X <input id="prop-x" inputmode="numeric"></label>
+      <label title="Posición vertical (top)">Y <input id="prop-y" inputmode="numeric"></label>
+      <label title="Ancho / tamaño de fuente" id="prop-size-label">W <input id="prop-size" inputmode="numeric"></label>
+      <label title="Rotación en grados">↻ <input id="prop-rot" inputmode="numeric"></label>
+    </div>
+    <div class="spacer"></div>
+    <div class="group">
+      <span class="label">Referencia</span>
+      <button class="btn" id="ref-side-btn" title="Referencia al lado (R)">Al lado</button>
+      <button class="btn" id="ref-over-btn" title="Referencia encima del diseño (O)">Encima</button>
+      <label class="group" id="ref-opacity-wrap" title="Opacidad de la referencia encima"><input type="range" id="ref-opacity" min="5" max="95" value="50"></label>
+    </div>
+    <div class="sep"></div>
+    <div class="group">
+      <button class="btn" id="undo" title="Deshacer (Ctrl/⌘+Z)">↶</button>
+      <button class="btn" id="redo" title="Rehacer (Ctrl/⌘+Shift+Z)">↷</button>
+    </div>
+    <a class="link" id="open-post" target="_blank" title="Abrir post.html solo, sin editor">post.html ↗</a>
+    <button class="btn solid" id="export-psd" title="Exportar PSD: una capa por elemento, textos editables">PSD</button>
+    <button class="btn primary" id="export" title="Exportar PNG a resolución real">Exportar PNG</button>
+    <div id="status" data-state="loading"><i></i><span id="status-text">Cargando…</span><button class="btn solid" id="status-action"></button></div>
+  </header>
+
+  <div id="viewport">
+    <div id="stage">
+      <figure class="panel">
+        <figcaption>Diseño</figcaption>
+        <div class="sheet" id="board">
+          <iframe id="frame" title="Diseño"></iframe>
+          <img id="ref-over" alt="">
+          <div id="hit"></div>
+          <div class="box" id="hover-box"></div>
+          <div class="box" id="sel-box">
+            <div class="rot-stem"></div>
+            <div class="handle" data-h="rot" title="Rotar (Shift: de a 15°)"></div>
+            <div class="handle" data-h="nw"></div><div class="handle" data-h="ne"></div>
+            <div class="handle" data-h="sw"></div><div class="handle" data-h="se"></div>
+          </div>
+          <div id="sel-label"></div>
+        </div>
+      </figure>
+      <figure class="panel" id="ref-panel">
+        <figcaption id="ref-name">Referencia</figcaption>
+        <div class="sheet" id="ref-sheet">
+          <img id="ref-img" alt="Referencia">
+          <div class="box" id="ref-box"></div>
+        </div>
+      </figure>
+    </div>
+    <div id="empty">No hay proyectos. Creá una carpeta con un <code>post.html</code> en el workspace.</div>
+  </div>
+  <div id="zoombar" class="group" title="Zoom de visualización (no cambia las coordenadas del diseño)">
+    <button class="btn" id="zoom-out" title="Alejar">−</button>
+    <span id="zoom-label">100%</span>
+    <button class="btn" id="zoom-in" title="Acercar">+</button>
+    <button class="btn" id="zoom-fit" title="Ajustar a la ventana (0)">Ajustar</button>
+    <button class="btn" id="zoom-100" title="Tamaño real (1)">1:1</button>
+  </div>
+  <div id="help"><kbd>←↑→↓</kbd> 1px · <kbd>Shift</kbd> 10px · <kbd>+ −</kbd> tamaño · <kbd>Ctrl/⌘ Z</kbd> deshacer · <kbd>Esc</kbd> deseleccionar</div>
+
+  <script type="module" src="/studio/editor.js"></script>
+</body>
+</html>

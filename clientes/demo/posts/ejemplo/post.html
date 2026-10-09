@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Pan de masa madre</title>
+  <style>
+    /* Marca demo — fuentes libres (OFL) */
+    @font-face { font-family: 'Archivo Black'; font-weight: 900; src: url('../../marca/fonts/archivo-black.ttf') format('truetype'); }
+    @font-face { font-family: 'Archivo'; font-weight: 100 900; src: url('../../marca/fonts/archivo.ttf') format('truetype'); }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    .canvas { position: relative; width: 1080px; height: 1350px; overflow: hidden; }
+    .canvas > * { position: absolute; margin: 0; }
+    .fondo { display: block; object-fit: cover; }
+    /* Textos. Escala horizontal (como en Photoshop): `scale: X 1` inline con transform-origin 0 0. */
+    .titulo { font-family: 'Archivo Black', sans-serif; font-weight: 900; color: #fff6e6; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 12px rgba(0, 0, 0, .3); }
+    .subtitulo { font-family: 'Archivo', sans-serif; font-weight: 500; color: #ffd27a; white-space: nowrap; text-shadow: 0 1px 8px rgba(0, 0, 0, .35); }
+    .acento { color: #ffd27a; }
+    .usuario { font-family: 'Archivo', sans-serif; font-weight: 600; color: #fff; white-space: nowrap; text-shadow: 0 1px 8px rgba(0, 0, 0, .3); }
+    /* Cabecera */
+    .menu::before, .menu::after { content: ''; position: absolute; left: 0; height: 5px; border-radius: 3px; background: #fff; }
+    .menu::before { top: 0; width: 100%; }
+    .menu::after { bottom: 0; width: 76%; }
+    /* Decoraciones (SVG en color de acento) */
+    .sello { color: #ffd27a; }
+    .sello > * { position: absolute; margin: 0; }
+    .sello svg { overflow: visible; }
+    .sello text { font-family: 'Archivo', sans-serif; font-weight: 700; fill: currentColor; }
+  </style>
+</head>
+<body>
+  <main class="canvas" id="lienzo">
+    <img id="fondo" class="fondo" src="./fondo.png"
+         style="left:0px;top:0px;width:1080px;height:1350px;z-index:0;" alt="">
+
+    <!-- Cabecera fija: no hace falta ajustarla en cada post. -->
+    <img id="logo" data-editable="true" data-role="logo" data-grupo="cabecera" src="../../marca/logo.png"
+         style="left:41px;top:22px;width:86px;z-index:20;" alt="Tu marca">
+    <p id="usuario" class="usuario" data-editable="true" data-role="label" data-grupo="cabecera"
+       style="left:150px;top:50px;font-size:30px;line-height:1;z-index:20;">tumarca</p>
+    <div id="menu" class="menu" data-editable="true" data-role="decoration" data-grupo="cabecera"
+         style="left:989px;top:46px;width:49px;height:31px;z-index:20;"></div>
+
+    <!-- Propio del post: reemplazar textos y ubicar con boxes/fit. La última línea del título va en .acento. -->
+    <p id="subtitulo" class="subtitulo" data-editable="true" data-role="label"
+       style="left:84px;top:180px;font-size:34px;line-height:1.2;z-index:10;">
+      Recién salido del horno<br>todos los días
+    </p>
+    <h1 id="titulo" class="titulo" data-editable="true" data-role="headline"
+        style="left:84px;top:290px;font-size:110px;line-height:0.95;z-index:10;">
+      Pan<br>de masa<br><span class="acento">madre</span>
+    </h1>
+    <!-- Sello "NUEVO": un solo elemento (anillo de texto + estrella), partes en % para que escalen juntas. -->
+    <div id="sello" class="sello" data-editable="true" data-role="decoration" data-nombre="Sello NUEVO"
+         style="left:780px;top:880px;width:220px;height:220px;z-index:10;">
+      <svg viewBox="0 0 220 220" style="left:0;top:0;width:100%;height:100%;">
+        <circle cx="110" cy="110" r="104" fill="none" stroke="currentColor" stroke-width="5"/>
+        <path id="sello-trazo" d="M110,30 A80,80 0 1 1 109.9,30" fill="none"/>
+        <text font-size="26" letter-spacing="6"><textPath href="#sello-trazo">NUEVO · NUEVO · NUEVO ·</textPath></text>
+        <path d="M110,72 L120,100 L150,100 L126,118 L135,147 L110,129 L85,147 L94,118 L70,100 L100,100 Z" fill="currentColor"/>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

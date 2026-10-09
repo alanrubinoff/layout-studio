@@ -1,0 +1,22 @@
+{
+  "name": "layout-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Editor visual mínimo para posts HTML de tamaño fijo. post.html es la única fuente de verdad.",
+  "type": "module",
+  "scripts": {
+    "start": "node studio/server.js",
+    "nuevo-cliente": "node studio/new-client.js",
+    "nuevo": "node studio/new-post.js",
+    "export": "node studio/export.js",
+    "psd": "node studio/psd.js",
+    "boxes": "node studio/boxes.js",
+    "fit": "node studio/fit.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "ag-psd": "^31.0.3",
+    "parse5": "^8.0.0",
+    "playwright": "^1.56.0"
+  }
+}

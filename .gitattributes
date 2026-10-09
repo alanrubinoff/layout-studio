@@ -1,0 +1,10 @@
+# Saltos de línea LF en todas las plataformas (Windows y macOS ven los mismos bytes en post.html)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.otf binary
+*.ttf binary
+*.woff2 binary
+*.bat text eol=crlf
