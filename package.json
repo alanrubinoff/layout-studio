@@ -10,13 +10,21 @@
     "nuevo": "node studio/new-post.js",
     "export": "node studio/export.js",
     "psd": "node studio/psd.js",
+    "nuevo-video": "node studio/video.js nuevo",
+    "video": "node studio/video.js studio",
+    "video:render": "node studio/video.js render",
     "boxes": "node studio/boxes.js",
     "fit": "node studio/fit.js",
     "test": "node --test tests/*.test.js"
   },
   "dependencies": {
+    "@remotion/cli": "4.0.534",
+    "@remotion/fonts": "4.0.534",
     "ag-psd": "^31.0.3",
     "parse5": "^8.0.0",
-    "playwright": "^1.56.0"
+    "playwright": "^1.56.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.534"
   }
 }

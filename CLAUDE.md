@@ -1,6 +1,6 @@
 # Layout Studio — guía para Claude Code
 
-Herramienta para armar posts de Instagram de tamaño fijo (1080×1350) en HTML, ajustarlos con el mouse y exportarlos a PNG y PSD.
+Herramienta para armar posts de Instagram de tamaño fijo (1080×1350) en HTML, ajustarlos con el mouse y exportarlos a PNG y PSD, más un video vertical animado (Remotion) por post.
 
 **El `post.html` de cada post es la única fuente de verdad.** El usuario suele ser diseñador, no programador: hablale en términos de diseño y hacé vos la parte técnica. Referencia completa en [README.md](README.md) (sección "Para agentes y desarrolladores").
 
@@ -49,6 +49,21 @@ Herramienta para armar posts de Instagram de tamaño fijo (1080×1350) en HTML, 
    - qué quedó distinto de la referencia y por qué (fuente reemplazada, pieza que es parte de la foto…).
 
    Si pide PSD: `npm run psd -- <cliente>/<post>`. Genera `export/<post>.psd` e imprime un enlace para verlo en Photopea.
+
+## Pedido: "hacé un video de este post"
+
+1. Si el post no tiene `video.jsx`: `npm run nuevo-video -- <cliente>/<post>`. Lo arma leyendo `post.html`: textos, fuentes, colores, logo, sello y reloj.
+2. Ajustá `clientes/<cliente>/posts/<post>/video.jsx` a lo que pida el usuario:
+   - duración (`export const duracion`);
+   - textos;
+   - piezas a sacar (borrar la prop, por ejemplo `reloj={…}`);
+   - tamaño del título (`tituloTamano`, `tituloEscala`).
+
+   Las animaciones compartidas están en `video/VideoPost.jsx`. Si el usuario quiere otra animación sólo para ese post, escribila en su `video.jsx` en lugar de cambiar la compartida.
+3. `npm run video:render -- <cliente>/<post>` genera `export/<post>.mp4`. Verificalo sacando un par de cuadros con el `ffmpeg` que trae Remotion (`node_modules/@remotion/compositor-*/ffmpeg.exe -ss 4 -i … -frames:v 1 cuadro.png`) y mirándolos.
+4. Para que lo vea y ajuste, arrancá en segundo plano `npm run video -- <cliente>/<post>` y pasale **http://localhost:3000**.
+
+Si el render falla con `write EOF` en Windows 11, es Smart App Control bloqueando el codificador de Remotion: explicáselo al usuario (lo desactiva él en Seguridad de Windows). No lo desactives vos.
 
 ## Pedido: "cambiá / mové / agrandá tal cosa"
 

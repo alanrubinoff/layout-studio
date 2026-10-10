@@ -70,6 +70,21 @@ El PSD sale organizado para seguir trabajando en Photoshop:
 - Las fuentes de la marca tienen que estar instaladas en la máquina donde se abre el PSD.
 - **Ver sin Photoshop:** el botón **Abrir en Photopea** lo abre en photopea.com, que corre en tu navegador (no se sube nada). Si Chrome pide permiso para que photopea.com acceda a la red local, aceptá.
 
+## Videos
+
+Cada post puede tener un video vertical animado (1080×1920, para reels e historias) hecho con [Remotion](https://www.remotion.dev). Usa los mismos textos, imágenes y colores del post: la cabecera baja, el subtítulo aparece, el título entra línea por línea, el sello entra girando y el reloj cuenta los minutos.
+
+```sh
+npm run nuevo-video -- <cliente>/<post>    # crea video.jsx en la carpeta del post, leyendo su post.html
+npm run video -- <cliente>/<post>          # abre Remotion Studio (vista previa con línea de tiempo)
+npm run video:render -- <cliente>/<post>   # → export/<post>.mp4, junto al PNG y el PSD
+```
+
+- El video de un post es su archivo **`video.jsx`**: dice qué textos, imágenes, colores y duración usar. Se puede editar a mano o pedírselo a Claude Code ("hacé que el video dure 8 segundos", "sacá el reloj del video").
+- Las animaciones compartidas están en [`video/VideoPost.jsx`](video/VideoPost.jsx). Cambiar algo ahí afecta a todos los videos.
+- Remotion lee los archivos directamente de la carpeta del cliente (`staticFile('marca/logo.png')`), sin copiarlos.
+- **Windows 11:** si exportar falla con `write EOF`, es *Smart App Control*. Bloquea el codificador de Remotion porque no está firmado; se desactiva en Seguridad de Windows → Control de aplicaciones y navegador. La vista previa en Studio funciona igual.
+
 ## Problemas comunes
 
 | Problema | Solución |
@@ -81,6 +96,7 @@ El PSD sale organizado para seguir trabajando en Photoshop:
 | `EADDRINUSE` (puerto ocupado) | Ya hay un editor abierto en otra ventana: usá ese, o cerralo |
 | Exportar falla con "No hay navegador" | En la carpeta del proyecto: `npx playwright install chromium` |
 | Photopea muestra el lienzo vacío | Revisá que el editor siga abierto y aceptá el permiso de red local de Chrome |
+| Exportar video falla con `Failed to launch the browser process` / `ENOENT` | La carpeta del proyecto está demasiado "adentro" (Windows no acepta rutas de más de 260 caracteres): movela a una ruta corta, p. ej. `C:\layout-studio` |
 
 ---
 
@@ -97,6 +113,9 @@ npm run boxes -- <cliente>/<post> [--apply id=N …] # detecta cajas de colores 
 npm run fit -- <cliente>/<post> <id> [--apply]     # ajusta un texto a la referencia
 npm run export -- <cliente>/<post>                 # → export/<post>.png
 npm run psd -- <cliente>/<post>                    # → export/<post>.psd (+ enlace a Photopea)
+npm run nuevo-video -- <cliente>/<post>            # crea video.jsx del post desde su post.html
+npm run video -- <cliente>/<post>                  # Remotion Studio con el video del post
+npm run video:render -- <cliente>/<post>           # → export/<post>.mp4
 npm test                                           # pruebas (usan el cliente demo)
 ```
 
@@ -118,7 +137,8 @@ clientes/
         referencia.png            diseño objetivo, sólo para comparar (nombre fijo)
         cajas.png                 referencia con cajas de colores (nombre fijo, opcional)
         <asset>.png               assets propios del post (reloj-35.png)
-        export/<post>.png, .psd   exportaciones (se regeneran; no se versionan)
+        video.jsx                 video del post (opcional; npm run nuevo-video)
+        export/<post>.png, .psd, .mp4   exportaciones (se regeneran; no se versionan)
 ```
 
 - **Archivos y carpetas:** minúsculas, palabras separadas por guiones, sin acentos ni espacios. Los comandos rechazan nombres que no cumplan.
@@ -165,6 +185,8 @@ studio/boxes.js         detección de cajas de colores
 studio/fit.js           ajuste de textos a la referencia
 studio/new-client.js    npm run nuevo-cliente
 studio/new-post.js      npm run nuevo
+studio/video.js         npm run nuevo-video / video / video:render (Remotion)
+video/VideoPost.jsx     animaciones compartidas de los videos
 tests/                  pruebas (node --test)
 docs/                   spec original y evaluación con agentes
 prompts/                prompts de ChatGPT (cajas, fondo limpio)
